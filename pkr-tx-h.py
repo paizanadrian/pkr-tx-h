@@ -31,7 +31,7 @@ def riffle_shuffle(deck, rng, times=5):
         k = rng.randint(5, 15)
         deck[:] = deck[-k:] + deck[:-k]
 
-def burn(deck): 
+def burn(deck):
     if deck: deck.pop(0)
 
 def seat_order(dealer_pos):
@@ -51,7 +51,7 @@ def deal_board(deck):
     return flop, turn, river
 
 # ===== evaluare =====
-def card_vals(cards): 
+def card_vals(cards):
     return sorted([RANK_VAL[c[:-1]] for c in cards], reverse=True)
 
 def is_flush(cards):
@@ -241,6 +241,7 @@ def card_html(card, big=False, highlight=False, border=False):
     pad = "8px 10px" if big else "4px 8px"
     font = "700 26px/1.0 'Segoe UI', system-ui" if big else "700 16px/1.0 'Segoe UI', system-ui"
     border_css = "2px solid #2e7d32" if border else "1px solid #bbb"
+    # font e definit dar nu-l folosim explicit în style (browser-ul aplică fontul paginii)
     return f"<span style='display:inline-block;margin:2px;padding:{pad};background:{bg};color:{color};border:{border_css};border-radius:6px'>{rank}{suit}</span>"
 
 def hidden_html(big=False):
@@ -299,15 +300,14 @@ def progress_step():
         s["winner_combos"] = winner_combos
         s["winner_descriptions"] = descriptions
 
-# Header
+# Header (fără butoane ca să evităm dublurile)
 left, mid, right = st.columns([1, 2, 1])
 with left:
-    if st.button("🃏 Mână nouă", use_container_width=True):
-        new_hand()
-        st.rerun()
+    pass
 with mid:
     st.title("Texas Hold'em – masă cu 10 jucători")
-    seed_in = st.text_input("Seed (adauga un numar, opțional, pentru repetabilitate)", value=str(st.session_state.seed) if st.session_state.seed is not None else "")
+    seed_in = st.text_input("Seed (adauga un numar, opțional, pentru repetabilitate)",
+                            value=str(st.session_state.seed) if st.session_state.seed is not None else "")
     if seed_in.strip() == "":
         st.session_state.seed = None
     else:
@@ -316,16 +316,7 @@ with mid:
         except ValueError:
             st.info("Seed-ul trebuie să fie un număr întreg sau gol.")
 with right:
-    s = st.session_state.state
-    stage = s.get("stage")
-    if not stage:
-        new_hand()
-        stage = st.session_state.state["stage"]
-    label = "Arată Turn" if stage == "flop" else ("Arată River" if stage == "turn" else ("Arată cărțile" if stage == "river" else "Final"))
-    disabled = stage == "show"
-    if st.button(label, disabled=disabled, use_container_width=True):
-        progress_step()
-        st.rerun()
+    pass
 
 # Ensure state exists
 if not st.session_state.state:
@@ -339,17 +330,30 @@ winner_combos = s.get("winner_combos", [])
 
 st.caption(f"**Buton (Dealer):** Jucătorul {s['dealer']} • **HERO:** Jucătorul {HERO}")
 
-# BOARD (centrat)
-center_left, center_mid, center_right = st.columns([1, 2, 1])
+# ==================== BOARD (centrat) + butoane pe același rând ====================
+# pregătim label-ul pentru butonul din dreapta
+label = (
+    "Arată Turn" if stage == "flop" else
+    ("Arată River" if stage == "turn" else
+     ("Arată cărțile" if stage == "river" else "Final"))
+)
+disabled = stage == "show"
 
-with center_mid:
+row_left, row_center, row_right = st.columns([1, 6, 1], gap="small")
+
+with row_left:
+    if st.button("🃏 Mână nouă", key="btn_new_board", use_container_width=True):
+        new_hand()
+        st.rerun()
+
+with row_center:
     # titlu centrat
     st.markdown(
         "<h3 style='text-align:center;margin:0.5rem 0'>Board (Flop • Turn • River)</h3>",
         unsafe_allow_html=True
     )
 
-    # board cards used in a winning combo (to highlight on SHOW)
+    # cărțile de pe board (cu highlight dacă fac parte din combo câștigător)
     parts = []
     board_highlight_set = set()
     if show and winner_combos:
@@ -361,19 +365,31 @@ with center_mid:
 
     # Flop
     for c in s["flop"]:
-        parts.append(card_html(c, big=True, highlight=show and c in board_highlight_set, border=show and c in board_highlight_set))
+        parts.append(card_html(
+            c, big=True,
+            highlight=show and c in board_highlight_set,
+            border=show and c in board_highlight_set
+        ))
 
     # Turn
     if stage in ("turn", "river", "show"):
         c = s["turn"]
-        parts.append(card_html(c, big=True, highlight=show and c in board_highlight_set, border=show and c in board_highlight_set))
+        parts.append(card_html(
+            c, big=True,
+            highlight=show and c in board_highlight_set,
+            border=show and c in board_highlight_set
+        ))
     else:
         parts.append(hidden_html(big=True))
 
     # River
     if stage in ("river", "show"):
         c = s["river"]
-        parts.append(card_html(c, big=True, highlight=show and c in board_highlight_set, border=show and c in board_highlight_set))
+        parts.append(card_html(
+            c, big=True,
+            highlight=show and c in board_highlight_set,
+            border=show and c in board_highlight_set
+        ))
     else:
         parts.append(hidden_html(big=True))
 
@@ -383,8 +399,13 @@ with center_mid:
         unsafe_allow_html=True
     )
 
-st.divider()
+with row_right:
+    if st.button(label, key="btn_prog_board", disabled=disabled, use_container_width=True):
+        progress_step()
+        st.rerun()
 
+st.divider()
+# ================================================================================
 
 # HERO
 is_hero_winner = (HERO-1) in winners
@@ -435,7 +456,6 @@ visible_indices = [i for i in range(NUM_PLAYERS) if i != (HERO - 1)]
 for n, idx in enumerate(visible_indices):
     col = cols[n % 5]  # distribuție pe 5 coloane
     render_player(idx, col)
-
 
 # Rezultate la SHOW
 if stage == "show":
