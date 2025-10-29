@@ -339,12 +339,18 @@ winner_combos = s.get("winner_combos", [])
 
 st.caption(f"**Buton (Dealer):** Jucătorul {s['dealer']} • **HERO:** Jucătorul {HERO}")
 
-# BOARD
-st.subheader("Board (Flop • Turn • River)")
-board_container = st.container()
-with board_container:
-    parts = []
+# BOARD (centrat)
+center_left, center_mid, center_right = st.columns([1, 2, 1])
+
+with center_mid:
+    # titlu centrat
+    st.markdown(
+        "<h3 style='text-align:center;margin:0.5rem 0'>Board (Flop • Turn • River)</h3>",
+        unsafe_allow_html=True
+    )
+
     # board cards used in a winning combo (to highlight on SHOW)
+    parts = []
     board_highlight_set = set()
     if show and winner_combos:
         all_board = s["flop"] + [s["turn"], s["river"]]
@@ -353,21 +359,32 @@ with board_container:
                 if c in all_board:
                     board_highlight_set.add(c)
 
+    # Flop
     for c in s["flop"]:
         parts.append(card_html(c, big=True, highlight=show and c in board_highlight_set, border=show and c in board_highlight_set))
+
+    # Turn
     if stage in ("turn", "river", "show"):
         c = s["turn"]
         parts.append(card_html(c, big=True, highlight=show and c in board_highlight_set, border=show and c in board_highlight_set))
     else:
         parts.append(hidden_html(big=True))
+
+    # River
     if stage in ("river", "show"):
         c = s["river"]
         parts.append(card_html(c, big=True, highlight=show and c in board_highlight_set, border=show and c in board_highlight_set))
     else:
         parts.append(hidden_html(big=True))
-    st.markdown(" ".join(parts), unsafe_allow_html=True)
+
+    # rand de cărți centrat
+    st.markdown(
+        f"<div style='text-align:center'>{' '.join(parts)}</div>",
+        unsafe_allow_html=True
+    )
 
 st.divider()
+
 
 # HERO
 is_hero_winner = (HERO-1) in winners
