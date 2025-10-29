@@ -305,7 +305,7 @@ left, mid, right = st.columns([1, 2, 1])
 with left:
     pass
 with mid:
-    st.title("Texas Hold'em – masă cu 10 jucători")
+    st.title("Texas Hold'em")
     seed_in = st.text_input("Seed (adauga un numar, opțional, pentru repetabilitate)",
                             value=str(st.session_state.seed) if st.session_state.seed is not None else "")
     if seed_in.strip() == "":
