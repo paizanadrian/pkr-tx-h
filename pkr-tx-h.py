@@ -2,6 +2,17 @@ import random
 from itertools import combinations
 import streamlit as st
 
+
+# Function to load CSS from the 'assets' folder
+def load_css(file_path):
+    with open(file_path) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+# Load the external CSS
+css_path = pathlib.Path("assets/styles.css")
+load_css(css_path)
+
 # ----------------------------
 NUM_PLAYERS = 10
 HERO = 7  # index uman (1-based)
