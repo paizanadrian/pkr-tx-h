@@ -366,20 +366,20 @@ with row_center:
         unsafe_allow_html=True
     )
 
-# … parts este deja populat cu cărțile (ai codul de mai sus)
-
-# AFIȘARE MASĂ OVALĂ + BOARD CENTRAT
-st.markdown(
-    f"""
-    <div class="table-wrap">
-      <div class="poker-table">
-        <div class="table-logo">Texas Hold'em</div>
-        <div class="board-cards">{' '.join(parts)}</div>
-      </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+    # … parts este deja populat cu cărțile (ai codul de mai sus)
+    
+    # AFIȘARE MASĂ OVALĂ + BOARD CENTRAT
+    st.markdown(
+        f"""
+        <div class="table-wrap">
+          <div class="poker-table">
+            <div class="table-logo">Texas Hold'em</div>
+            <div class="board-cards">{' '.join(parts)}</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     # cărțile de pe board (cu highlight dacă fac parte din combo câștigător)
     parts = []
