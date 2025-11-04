@@ -75,7 +75,7 @@ with st.sidebar:
     hero = st.number_input("Numărul tău (poziția)", min_value=1, max_value=num_players,
                            value=min(st.session_state.HERO, num_players))
     st.markdown("")
-    seed_str = st.text_input("Seed opțional pentru repetabilitate", value="" if st.session_state.seed is None else str(st.session_state.seed))
+    seed_str = st.text_input("Seed (opțional) pentru repetabilitate", value="" if st.session_state.seed is None else str(st.session_state.seed))
     if seed_str.strip() == "":
         st.session_state.seed = None
     else:
