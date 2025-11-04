@@ -489,7 +489,7 @@ with top_center:
 
         # === Dealer chip: spre interiorul mesei (interpolare către centru) ===
         if (i + 1) == s["dealer"]:
-            alpha = 0.82  # 0.78..0.90 — mai mare = mai aproape de scaun; mai mic = mai aproape de centru
+            alpha = 0.70  # 0.78..0.90 — mai mare = mai aproape de scaun; mai mic = mai aproape de centru
             chip_x = 50 * (1 - alpha) + alpha * x
             chip_y = 50 * (1 - alpha) + alpha * y
 
