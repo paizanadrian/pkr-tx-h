@@ -1,5 +1,18 @@
 import streamlit as st
 st.set_page_config(page_title="Texas Hold'em – jucători dinamici", layout="wide")
+st.markdown("""
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-color: #0b0f12 !important;
+        color: #e0e0e0 !important;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #151a1f !important;
+        color: #e0e0e0 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 
 import random, math, pathlib, textwrap
 from itertools import combinations
