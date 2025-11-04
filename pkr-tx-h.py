@@ -1,23 +1,16 @@
 import streamlit as st
 st.set_page_config(page_title="Texas Hold'em – jucători dinamici", layout="wide")
 st.markdown("""
-<style>
-/* text alb peste tot (fără să atingem cărțile – alea au color inline) */
-[data-testid="stAppViewContainer"],
-[data-testid="stMarkdownContainer"],
-.stMarkdown, .stText, .stCaption, body {
-  color: #ffffff !important;
-}
-h1, h2, h3, h4, h5, h6, p, li, code, pre {
-  color: #ffffff !important;
-}
-/* sidebar */
-[data-testid="stSidebar"] { color: #ffffff !important; }
-/* etichete controale (slider, input, checkbox) */
-label, .stSlider, .stSelectbox, .stTextInput, .stNumberInput {
-  color: #ffffff !important;
-}
-</style>
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-color: #0b0f12 !important;
+        color: #e0e0e0 !important;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #151a1f !important;
+        color: #e0e0e0 !important;
+    }
+    </style>
 """, unsafe_allow_html=True)
 
 
