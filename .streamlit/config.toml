@@ -1,1 +1,7 @@
-
+[theme]
+base = "dark"                # <- face tema implicită dark
+primaryColor = "#00ff99"
+backgroundColor = "#0b0f12"
+secondaryBackgroundColor = "#151a1f"
+textColor = "#ffffff"
+font = "sans serif"
