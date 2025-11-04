@@ -1,5 +1,18 @@
 import streamlit as st
 st.set_page_config(page_title="Texas Hold'em – jucători dinamici", layout="wide")
+st.markdown("""
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background-color: #0b0f12 !important;
+        color: #e0e0e0 !important;
+    }
+    [data-testid="stSidebar"] {
+        background-color: #151a1f !important;
+        color: #e0e0e0 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 
 import random, math, pathlib, textwrap
 from itertools import combinations
@@ -25,6 +38,12 @@ FALLBACK_CSS = """
 @keyframes dealerSpin{from{filter:hue-rotate(0deg)}to{filter:hue-rotate(360deg)}}
 html, body [data-testid="stAppViewContainer"]{background:#0b0f12}
 """
+
+CARD_SCALE_PLAYERS = 2.5
+CARD_SCALE_BOARD   = 2.0
+# și folosește scale=CARD_SCALE_BOARD pentru board, respectiv CARD_SCALE_PLAYERS pentru jucători.
+
+
 def load_css(rel_path="assets/styles.css"):
     base = pathlib.Path(__file__).parent
     css_path = (base / rel_path).resolve()
@@ -228,25 +247,40 @@ def describe_score(score):
     return f"{HAND_NAMES[0]} – " + " ".join(to_rank_str(v) for v in score[1][:5])
 
 # ===== UI helpers (HTML cards) =====
-def card_html(card, big=False, highlight=False, border=False):
+def card_html(card, big=False, highlight=False, border=False, scale=1.0):
     rank, suit = card[:-1], card[-1]
     color = "#d00" if suit in RED_SUITS else "#111"
-    bg = "#8dff8d" if highlight else "#fff"
-    pad = "8px 10px" if big else "4px 8px"
+    bg = "#f4f71e" if highlight else "#fff"
+    # mărimi de bază
+    base_pad = (8, 10) if big else (4, 8)
+    base_font = 26 if big else 16
+    base_margin = 2
+    # aplică factorul
+    pad = f"{int(base_pad[0]*scale)}px {int(base_pad[1]*scale)}px"
+    font_size = int(base_font * scale)
+    margin = int(base_margin * scale)
     border_css = "2px solid #2e7d32" if border else "1px solid #bbb"
     return (
-        f"<span style='display:inline-block;margin:2px;"
+        f"<span style='display:inline-block;margin:{margin}px;"
         f"padding:{pad};background:{bg};color:{color};"
-        f"border:{border_css};border-radius:6px'>{rank}{suit}</span>"
+        f"border:{border_css};border-radius:{int(6*scale)}px;"
+        f"font-size:{font_size}px;line-height:1.0;font-weight:700'>{rank}{suit}</span>"
     )
 
-def hidden_html(big=False):
-    pad = "8px 10px" if big else "4px 8px"
+def hidden_html(big=False, scale=1.0):
+    base_pad = (8, 10) if big else (4, 8)
+    base_font = 26 if big else 16
+    base_margin = 2
+    pad = f"{int(base_pad[0]*scale)}px {int(base_pad[1]*scale)}px"
+    font_size = int(base_font * scale)
+    margin = int(base_margin * scale)
     return (
-        f"<span style='display:inline-block;margin:2px;"
+        f"<span style='display:inline-block;margin:{margin}px;"
         f"padding:{pad};background:#fff;color:#111;"
-        f"border:1px solid #bbb;border-radius:6px'>🂠</span>"
+        f"border:1px solid #bbb;border-radius:{int(6*scale)}px;"
+        f"font-size:{font_size}px;line-height:1.0;font-weight:700'>🂠</span>"
     )
+
 
 # ===== Legendă & posibile (doar la River) =====
 LEGEND_TEXT = {
@@ -395,18 +429,18 @@ with top_center:
     for c in s["flop"]:
         parts.append(card_html(c, big=True,
                                highlight=show and c in board_highlight_set,
-                               border=show and c in board_highlight_set))
+                               border=show and c in board_highlight_set, scale=CARD_SCALE_BOARD))
     parts.append(
         card_html(s["turn"], big=True,
                   highlight=show and s["turn"] in board_highlight_set,
-                  border=show and s["turn"] in board_highlight_set)
-        if stage in ("turn","river","show") else hidden_html(big=True)
+                  border=show and s["turn"] in board_highlight_set, scale=CARD_SCALE_BOARD)
+        if stage in ("turn","river","show") else hidden_html(big=True, scale=CARD_SCALE_BOARD)
     )
     parts.append(
         card_html(s["river"], big=True,
                   highlight=show and s["river"] in board_highlight_set,
-                  border=show and s["river"] in board_highlight_set)
-        if stage in ("river","show") else hidden_html(big=True)
+                  border=show and s["river"] in board_highlight_set, scale=CARD_SCALE_BOARD)
+        if stage in ("river","show") else hidden_html(big=True, scale=CARD_SCALE_BOARD)
     )
 
     # === Jucători în jurul mesei ===
@@ -439,11 +473,11 @@ with top_center:
         if is_hero or stage == "show":
             cards = s["hands"][i]
             cards_html = " ".join(
-                card_html(c, highlight=(is_winner and (c in combo_set)))
+                card_html(c, highlight=(is_winner and (c in combo_set)), scale=CARD_SCALE_PLAYERS)
                 for c in cards
             )
         else:
-            cards_html = " ".join(hidden_html() for _ in range(2))
+            cards_html = " ".join(hidden_html(scale=CARD_SCALE_PLAYERS) for _ in range(2))
 
         # seat container
         player_seats.append(
